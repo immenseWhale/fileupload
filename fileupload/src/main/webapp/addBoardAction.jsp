@@ -4,7 +4,15 @@
 <%@ page import = "java.sql.*" %>
 <%@ page import = "vo.*" %>
 <%@ page import = "java.io.*"%> <!-- 타입이 맞지 않는 업로드 된 불필요한 파일을 삭제하기 위해 불러옴 -->
-<%
+<%String loginMemberId = null;
+	if(session.getAttribute("loginMemberId") != null) {
+		loginMemberId = (String)session.getAttribute("loginMemberId");
+	}else{
+		//board 추가는 로그인 한 사람만 하게 해준다.
+		System.out.println("boardList.jsp로 리턴<---addBoard.jsp");
+		response.sendRedirect(request.getContextPath() + "/boardList.jsp");		
+		return;
+	}
 	final String RESET = "\u001B[0m" ;                           
 	final String RED = "\u001B[31m";
 	final String BG_RED = "\u001B[41m";
@@ -20,8 +28,6 @@
 	// DefaultFileRenamePolicy() 파일 중복이름 방지 -- 후에 다른 방법으로 사용
 	MultipartRequest mRequest = new MultipartRequest(request, dir, max, "utf-8", new DefaultFileRenamePolicy());
 	
-	// multipartRequest API를 사용하여 스트림내에서 문자값을 반환받을 수 있다
-
 	//업로드 파일이 pdf 파일이 아니면 리턴하겠다. cos.jar에서는 이미 파일이 들어온 이후다.--> 삭제 API import="java.io.File"
 	if(mRequest.getContentType("boardFile").equals("application/pdf") == false){
 		//이미 저장된 파일 삭제 후 리턴

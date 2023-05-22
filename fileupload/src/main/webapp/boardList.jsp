@@ -19,7 +19,7 @@
 	//System.out.println(currentPage + " <--currentPage");
 	
 	//페이지당 출력할 행의 수	
-	int rowPerPage = 10;	
+	int rowPerPage = 4;	
 	//시작 행 번호	
 	int startRow = (currentPage-1)*rowPerPage;		//1페이지 일 때만 startRow가 0이다
 	
@@ -30,9 +30,9 @@
 	String dbUser = "root";
 	String dbPw = "java1234";	
 	Class.forName(driver);
-	System.out.println("boardList.jsp --> DB 드라이버 로딩 성공");	
+	//System.out.println("boardList.jsp --> DB 드라이버 로딩 성공");	
 	Connection conn = DriverManager.getConnection(dbUrl, dbUser, dbPw);	
-	System.out.println("boardList.jsp --> DB 접속성공 "+conn);
+	//System.out.println("boardList.jsp --> DB 접속성공 "+conn);
 	//---DB 호출--------------------------------------------------------//
 	
 	/*	JOIN 문
@@ -50,28 +50,29 @@
 		ON b.board_no = f.board_no
 		ORDER BY b.createdate DESC LIMIT ?, ?
 	*/
-	String sql = "SELECT b.board_no boardNo, b.board_title boardTitle, b.member_id memberId, b.createdate, b.updatedate, f.origin_filename originFilename, f.save_filename saveFilename, f.path path, f.type type FROM board b INNER JOIN board_file f ON b.board_no = f.board_no ORDER BY b.createdate DESC LIMIT ?, ?";
+	String sql = "SELECT b.board_no boardNo, b.board_title boardTitle, b.member_id memberId, b.createdate, b.updatedate, f.board_file_no boardFileNo , f.origin_filename originFilename, f.save_filename saveFilename, f.path path, f.type type FROM board b INNER JOIN board_file f ON b.board_no = f.board_no ORDER BY b.createdate DESC LIMIT ?, ?";
 	PreparedStatement stmt = conn.prepareStatement(sql); // 
 	stmt.setInt(1, startRow);
 	stmt.setInt(2, rowPerPage);
-	System.out.println(GREEN + stmt + " <--stmt-- addBoardAcion boardStmt" +RESET);
+	//System.out.println(GREEN + stmt + " <--stmt-- boardList.jsp boardStmt" +RESET);
 	ResultSet rs = stmt.executeQuery();	
 	//vo타입 Board ArrayList 선언
 	ArrayList<HashMap<String, Object>> list = new ArrayList<HashMap<String, Object>>();
 	while(rs.next()){
 		HashMap<String, Object> m = new HashMap<>();
-		m.put("boardNo", rs.getString("boardNo"));
+		m.put("boardNo", rs.getInt("boardNo"));
 		m.put("boardTitle", rs.getString("boardTitle"));
 		m.put("memberId", rs.getString("memberId"));
 		m.put("createdate", rs.getString("createdate"));
 		m.put("updatedate", rs.getString("updatedate"));
+		m.put("boardFileNo", rs.getInt("boardFileNo"));
 		m.put("originFilename", rs.getString("originFilename"));
 		m.put("saveFilename", rs.getString("saveFilename"));
 		m.put("path", rs.getString("path"));
 		m.put("type", rs.getString("type"));
 		list.add(m);
 	}
-	System.out.println(YELLOW + list + " <--ArrayList-- addBoardAcion list" +RESET);
+	//System.out.println(YELLOW + list + " <--ArrayList-- addBoardAcion list" +RESET);
 
 	//마지막 페이지 구하는 sql
 	PreparedStatement stmt2 = conn.prepareStatement("select count(*) from board");
@@ -94,7 +95,8 @@
 	//boardList는 로그인 하지 않아도 값을 보여주니까 세션 검사 뒤에
 	String loginMemberId = null;
 	if(session.getAttribute("loginMemberId") != null) {
-		loginMemberId = (String)session.getAttribute("loginMemberId") + ("<-- boardList.jsp session.getAttribute ");
+		loginMemberId = (String)session.getAttribute("loginMemberId");
+		//System.out.println(loginMemberId + "<--boardList.jsp loginMemberId");
 	}
 	
 %>
@@ -179,7 +181,7 @@
 	
 <!----------------------- board List 출력 -->
 <div>
-	<table class="table table-bordered ">
+	<table class="table table-bordered">
 		<tr>
 			<th>Board No</th>
 			<th>Board Title</th>
@@ -187,8 +189,10 @@
 			<th>Origin File Name</th>
 			<th>File Type</th>		
 			<th>Save File Name</th>	
-			<th>create date</th>
-			<th>update date</th>
+			<th>Board File No</th>
+			<th>Create Date</th>	
+			<th>Update Date</th>	
+			<th colspan="2">Edit</th>
 		</tr>
 		<%
 			//notice 사이즈만큼 반복되는 배열로 re.next를 대신한다.
@@ -204,9 +208,37 @@
 					</a>
 				</td>
 				<td><%=m.get("type")%> </td>
-				<td><%=m.get("saveFilename")%> </td>
+				<td><%=m.get("saveFilename")%> </td>				
+				<td><%=m.get("boardFileNo")%> </td>
 				<td><%=m.get("createdate")%> </td>
 				<td><%=m.get("updatedate")%> </td>
+			<% //memberId가 null이 아니고, board id와 같다면 수정 삭제를 보여주고, 가능하게 하겠다.
+				if(loginMemberId != null && loginMemberId.equals(m.get("memberId"))) {
+			%>	
+					<td>
+						<form action="<%=request.getContextPath()%>/modifyBoard.jsp" method="get">
+							<input type="hidden" name="boardNo" value="<%=m.get("boardNo")%>">
+							<input type="hidden" name="boardFileNo" value="<%=m.get("boardFileNo")%>">
+							<button type="submit">수정</button>
+						</form>
+					</td>
+					<td>
+						<form action="<%=request.getContextPath()%>/removeBoardAction.jsp" method="post" enctype="multipart/form-data">
+							<input type="hidden" name="boardNo" value="<%=m.get("boardNo")%>">
+							<input type="hidden" name="saveFilename" value="<%=m.get("saveFilename")%>">
+							<input type="hidden" name="path" value="<%=m.get("path")%>">			
+							<input type="hidden" name="memberId" value="<%=m.get("memberId")%>">
+							<button type="submit">삭제</button>
+						</form>
+					</td>
+			<%
+				}else{
+			%>
+				<td>본인전용</td>
+				<td>본인전용</td>
+			<%
+				}
+			%>
 			</tr>
 		<%		
 			}
@@ -214,15 +246,15 @@
 	</table>
 </div>
 <!---------------------------페이징  -->
-<div>
+<div align="center">
 <% 	//페이지가 1 이상이면 이전 페이지 보여주기
 	if (startPage > 1) {
 %>
 		<a href="<%=request.getContextPath()%>/boardList.jsp?currentPage=<%=1%>">1</a>
 		<span>...</span>
 <%
-      } 
-      
+     } 
+     
 	for (int i = startPage; i <= endPage; i+=1) { 
 		if (i == currentPage) {
 %>
@@ -234,11 +266,10 @@
 <% 
 		} 
 	} 	
-
-		if (endPage < lastPage) {
+	if (endPage < lastPage) {
 %>
-			<span>...</span>
-			<a href="<%=request.getContextPath()%>/boardList.jsp?currentPage=<%=lastPage%>"><%=lastPage%></a>
+		<span>...</span>
+		<a href="<%=request.getContextPath()%>/boardList.jsp?currentPage=<%=lastPage%>"><%=lastPage%></a>
 <% 
 	}
 %>
