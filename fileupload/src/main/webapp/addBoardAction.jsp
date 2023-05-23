@@ -97,7 +97,7 @@
 	boardStmt.setString(1, boardTitle);
 	boardStmt.setString(2, memberId );
 	System.out.println(YELLOW + boardStmt + " <--stmt-- addBoardAcion boardStmt" +RESET);
-	boardStmt.executeUpdate();
+	int boardRow = boardStmt.executeUpdate();
 	
 	//결과값에 GENERATED_KEYS 받아온다.
 	ResultSet keyRs = boardStmt.getGeneratedKeys();
@@ -105,7 +105,7 @@
 	if(keyRs.next()){
 		boardNo = keyRs.getInt(1);
 	}
-	int boardRow = boardStmt.executeUpdate();
+	
 	/*
 		INSERT 쿼리 실행 후 기본키값 받아오는 JDBC API
 		String sql = "INSERT 쿼리";

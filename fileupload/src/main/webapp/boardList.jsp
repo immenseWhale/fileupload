@@ -19,11 +19,12 @@
 	//System.out.println(currentPage + " <--currentPage");
 	
 	//페이지당 출력할 행의 수	
-	int rowPerPage = 4;	
+	int rowPerPage = 5;	
 	//시작 행 번호	
 	int startRow = (currentPage-1)*rowPerPage;		//1페이지 일 때만 startRow가 0이다
-	
-	
+	int endRow = startRow + (rowPerPage - 1);
+	System.out.println(GREEN + startRow + " <-- startRow " +RESET);
+	System.out.println(GREEN + endRow + " <-- endRow" +RESET);
 	//---DB 호출--------------------------------------------------------//
 	String driver = "org.mariadb.jdbc.Driver";
 	String dbUrl = "jdbc:mariadb://127.0.0.1:3306/fileuplode";
@@ -81,6 +82,11 @@
 	if(rs2.next()) {
 		totalRow = rs2.getInt("count(*)");
 	}
+	if(endRow>totalRow){
+		endRow = totalRow;
+	}
+	System.out.println(RED + totalRow + " <-- totalRow " +RESET);
+	System.out.println(GREEN + endRow + " <-- sql 이후 endRow" +RESET);
 	//마지막 페이지 = 총 행 / 페이지당 행
 	int lastPage = totalRow / rowPerPage;
 	if(totalRow % rowPerPage != 0) {
@@ -91,7 +97,10 @@
  	//Math.max --> 값들 중 가장 큰 값 반환  Math.min --> 값들 중 가장 작은 값 반환
     int startPage = Math.max(1, currentPage - pageRange); // 현재 페이지 주변의 첫 페이지 번호 계산
     int endPage = Math.min(lastPage, currentPage + pageRange); // 현재 페이지 주변의 마지막 페이지 번호 계산
-	
+	System.out.println(YELLOW + startPage + " <-- startPage " +RESET);
+	System.out.println(YELLOW + endPage + " <-- endPage" +RESET);
+
+    
 	//boardList는 로그인 하지 않아도 값을 보여주니까 세션 검사 뒤에
 	String loginMemberId = null;
 	if(session.getAttribute("loginMemberId") != null) {
@@ -115,10 +124,10 @@
 		text-decoration: none;
 	}
 	a:link { 	/* 방문한 적 없는 글자색  */
-		color:#4C4C4C; 
+		color:#B79090; 
 	}
 	a:visited { /* 방문한 글자색  */
-		color:#747474;
+		color:#DBB4B4;
 	}
 	.p2 {/* 본문 폰트 좌정렬*/
 		font-family: "Lucida Console", "Courier New", monospace;
@@ -135,146 +144,183 @@
 	h2 {/* h2 왼쪽정렬 */
 		text-align: left;
 	}
+	.button {/* 버튼 스타일 */
+	  background-color: #FFD8D8; /* Green */
+	  border: none;
+	  color: black;
+	  padding: 15px 32px;
+	  text-align: center;
+	  text-decoration: none;
+	  display: inline-block;
+	  font-size: 16px;
+	}
+	.button:hover {background-color: #FFB1BC}
+	.button:active {
+	  background-color: #FFB1BC;
+	  text-align: center;
+	  box-shadow: 0 5px #666;
+	  transform: translateY(4px);
+	}
+	pagination {
+	  text-align: center;
+	}
+	
+	.pagination a {
+	  color: black;
+	  display: inline-block;
+	  padding: 8px 16px;
+	  text-decoration: none;
+	  transition: background-color .3s;
+	}
+	
+	.pagination a.active {
+	  background-color: #FFD8D8;
+	  color: white;
+	}
+	
+	.pagination a:hover:not(.active) {
+	  background-color: #FFD8D8;
+	}
 </style>
 </head>
 <body>
 <!----------------------- 로그인하지 않았다면 로그인 폼, 로그인 했다면 수정 삭제 앵커 보여주겠다-->
-<div align="center">
-<%
-	if(session.getAttribute("loginMemberId") == null) { // 로그인전이면 로그인폼출력
-%>
-	<form action="<%=request.getContextPath()%>/loginAction.jsp" method="post"  >
-		<table>
-			<tr>
-				<td>
-					ID
-				</td>
-				<td>
-					<input type="text" name="memberId">
-				</td>
-				<td>
-					Password
-				</td>
-				<td>
-					<input type="password" name="memberPw">
-				</td>
-				<td>
-					<button type="submit">login</button>
-				</td>
-			</tr>
-		</table>              
-	</form>
-<%  
-	} else { //로그인후
-%>
-	<div>
-		<%=session.getAttribute("loginMemberId") %>님</a>
+<div class="container">	
+	<div align="right">	
+	<h1>PDF 파일 목록</h1>
+	<%
+		if(session.getAttribute("loginMemberId") == null) { // 로그인전이면 로그인폼출력
+	%>
+		<form action="<%=request.getContextPath()%>/loginAction.jsp" method="post"  >
+			<table>
+				<tr>
+					<td>
+						ID
+					</td>
+					<td>
+						<input type="text" name="memberId">
+					</td>
+					<td>
+						Password
+					</td>
+					<td>
+						<input type="password" name="memberPw">
+					</td>
+					<td>
+						<button type="submit">login</button>
+					</td>
+				</tr>
+			</table>              
+		</form>
+	<%  
+		} else { //로그인후
+	%>
+		<div>
+			<%=session.getAttribute("loginMemberId") %>님</a>
+		</div>
+		<div>
+			<a href="<%=request.getContextPath()%>/addBoard.jsp?">PDF 추가</a>
+		</div>
+	<%    
+		}
+	%> 
 	</div>
-	<div>
-		<a href="<%=request.getContextPath()%>/addBoard.jsp?">PDF 추가</a>
-	</div>
-<%    
-	}
-%> 
-
-</div>
 	
-<!----------------------- board List 출력 -->
-<div>
-	<table class="table table-bordered">
-		<tr>
-			<th>Board No</th>
-			<th>Board Title</th>
-			<th>Member ID</th>
-			<th>Origin File Name</th>
-			<th>File Type</th>		
-			<th>Save File Name</th>	
-			<th>Board File No</th>
-			<th>Create Date</th>	
-			<th>Update Date</th>	
-			<th colspan="2">Edit</th>
-		</tr>
-		<%
-			//notice 사이즈만큼 반복되는 배열로 re.next를 대신한다.
-			for(HashMap<String, Object> m : list){
-		%>				
-			<tr>	
-				<td><%=m.get("boardNo")%> </td>
-				<td><%=m.get("boardTitle")%> </td>
-				<td><%=m.get("memberId")%> </td>
-				<td>
-					<a href="<%=request.getContextPath()%>/<%=(String)m.get("path")%>/<%=(String)m.get("saveFilename")%>" download="<%=(String)m.get("saveFilename")%>">						
-						<%=m.get("originFilename")%> 
-					</a>
-				</td>
-				<td><%=m.get("type")%> </td>
-				<td><%=m.get("saveFilename")%> </td>				
-				<td><%=m.get("boardFileNo")%> </td>
-				<td><%=m.get("createdate")%> </td>
-				<td><%=m.get("updatedate")%> </td>
-			<% //memberId가 null이 아니고, board id와 같다면 수정 삭제를 보여주고, 가능하게 하겠다.
-				if(loginMemberId != null && loginMemberId.equals(m.get("memberId"))) {
-			%>	
-					<td>
-						<form action="<%=request.getContextPath()%>/modifyBoard.jsp" method="get">
-							<input type="hidden" name="boardNo" value="<%=m.get("boardNo")%>">
-							<input type="hidden" name="boardFileNo" value="<%=m.get("boardFileNo")%>">
-							<button type="submit">수정</button>
-						</form>
-					</td>
-					<td>
-						<form action="<%=request.getContextPath()%>/removeBoardAction.jsp" method="post" enctype="multipart/form-data">
-							<input type="hidden" name="boardNo" value="<%=m.get("boardNo")%>">
-							<input type="hidden" name="saveFilename" value="<%=m.get("saveFilename")%>">
-							<input type="hidden" name="path" value="<%=m.get("path")%>">			
-							<input type="hidden" name="memberId" value="<%=m.get("memberId")%>">
-							<button type="submit">삭제</button>
-						</form>
-					</td>
-			<%
-				}else{
-			%>
-				<td>본인전용</td>
-				<td>본인전용</td>
-			<%
-				}
-			%>
+		
+	<!----------------------- board List 출력 -->
+	<div align="center" class="p2">
+		<table class="table table-bordered">
+			<tr style="background-color:#FFD8D8">
+				<th>Board No</th>
+				<th>Board Title</th>
+				<th>Member ID</th>
+				<th>Origin File Name</th>
+				<th>File Type</th>		
+				<th>Save File Name</th>	
+				<th>Create Date</th>	
+				<th>Update Date</th>	
+				<th colspan="2">Edit</th>
 			</tr>
-		<%		
-			}
-		%>	
-	</table>
-</div>
+			<%
+				//notice 사이즈만큼 반복되는 배열로 re.next를 대신한다.
+				for(HashMap<String, Object> m : list){
+			%>				
+				<tr>	
+					<td><%=m.get("boardNo")%> </td>
+					<td><%=m.get("boardTitle")%> </td>
+					<td><%=m.get("memberId")%> </td>
+					<td>
+						<a href="<%=request.getContextPath()%>/<%=(String)m.get("path")%>/<%=(String)m.get("saveFilename")%>" download="<%=(String)m.get("saveFilename")%>">						
+							<%=m.get("originFilename")%> 
+						</a>
+					</td>
+					<td><%=m.get("type")%> </td>
+					<td><%=m.get("saveFilename")%> </td>	
+					<td><%=m.get("createdate")%> </td>
+					<td><%=m.get("updatedate")%> </td>
+				<% //memberId가 null이 아니고, board id와 같다면 수정 삭제를 보여주고, 가능하게 하겠다.
+					if(loginMemberId != null && loginMemberId.equals(m.get("memberId"))) {
+				%>	
+						<td>
+							<form action="<%=request.getContextPath()%>/modifyBoard.jsp" method="get">
+								<input type="hidden" name="boardNo" value="<%=m.get("boardNo")%>">
+								<input type="hidden" name="boardFileNo" value="<%=m.get("boardFileNo")%>">
+								<button class = "button" type="submit">수정</button>
+							</form>
+						</td>
+						<td>
+							<form action="<%=request.getContextPath()%>/removeBoardAction.jsp" method="post" enctype="multipart/form-data">
+								<input type="hidden" name="boardNo" value="<%=m.get("boardNo")%>">
+								<input type="hidden" name="saveFilename" value="<%=m.get("saveFilename")%>">
+								<input type="hidden" name="path" value="<%=m.get("path")%>">			
+								<input type="hidden" name="memberId" value="<%=m.get("memberId")%>">
+								<button class = "button" type="submit">삭제</button>
+							</form>
+						</td>
+				<%
+					}else{
+				%>
+					<td>본인전용</td>
+					<td>본인전용</td>
+				<%
+					}
+				%>
+				</tr>
+			<%		
+				}
+			%>	
+		</table>
+	</div>
 <!---------------------------페이징  -->
-<div align="center">
-<% 	//페이지가 1 이상이면 이전 페이지 보여주기
-	if (startPage > 1) {
-%>
-		<a href="<%=request.getContextPath()%>/boardList.jsp?currentPage=<%=1%>">1</a>
-		<span>...</span>
-<%
-     } 
-     
-	for (int i = startPage; i <= endPage; i+=1) { 
-		if (i == currentPage) {
-%>
-			<span><%=i%></span>
-<%
-		} else {
-%>
-			<a href="<%=request.getContextPath()%>/boardList.jsp?currentPage=<%=i%>"><%=i%></a>
-<% 
-		} 
-	} 	
-	if (endPage < lastPage) {
-%>
-		<span>...</span>
-		<a href="<%=request.getContextPath()%>/boardList.jsp?currentPage=<%=lastPage%>"><%=lastPage%></a>
-<% 
-	}
-%>
+
+	<div class="pagination">
+	<% 	//페이지가 1 이상이면 이전 페이지 보여주기
+		if (startPage > 1) {
+	%>
+			<a href="<%=request.getContextPath()%>/boardList.jsp?currentPage=<%=1%>">1</a>
+			<span>...</span>
+	<%
+	     } 
+	     
+		for (int i = startPage; i <= endPage; i+=1) { 
+			if (i == currentPage) {
+	%>
+				<span  class="active"><%=i%></span>
+	<%
+			} else {
+	%>
+				<a href="<%=request.getContextPath()%>/boardList.jsp?currentPage=<%=i%>"><%=i%></a>
+	<% 
+			} 
+		} 	
+		if (endPage < lastPage) {
+	%>
+			<span>...</span>
+			<a href="<%=request.getContextPath()%>/boardList.jsp?currentPage=<%=lastPage%>"><%=lastPage%></a>
+	<% 
+		}
+	%>
+	</div>
 </div>
-
-
 </body>
 </html>

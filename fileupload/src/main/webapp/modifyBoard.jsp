@@ -102,30 +102,56 @@
 	h2 {/* h2 왼쪽정렬 */
 		text-align: left;
 	}
+	.button {/* 버튼 스타일 */
+	  background-color: #FFD8D8; /* Green */
+	  border: none;
+	  color: black;
+	  padding: 15px 32px;
+	  text-align: center;
+	  text-decoration: none;
+	  display: inline-block;
+	  font-size: 16px;
+	}
+	.button:hover {background-color: #FFB1BC}
+	.button:active {
+	  background-color: #FFB1BC;
+	  box-shadow: 0 5px #666;
+	  transform: translateY(4px);
+	}
 </style>
 </head>
 <body>
-	<h1>board & boardFile 수정</h1>
-	<form action="<%=request.getContextPath()%>/modifyBoardAction.jsp" method="post" enctype="multipart/form-data">
-		<input type="hidden" name="boardNo" value="<%=map.get("boardNo")%>">
-		<input type="hidden" name="boardFileNo" value="<%=map.get("boardFileNo")%>">
-		<table class="table table-bordered">
-			<tr>
-				<td>Title</td>
-				<td>
-					<textarea rows="3" cols="50" name="boardTitle" required="required">
-						<%=map.get("boardTitle") %>
-					</textarea>
-				</td>
-			</tr>
-			<tr>
-				<td>Board File(수정 전 파일 : <%=map.get("originFilename")%>)</td>
-				<td>
-					<input type="file" name="boardFile">
-				</td>
-			</tr>
-		</table>
-		<button type="submit">수정</button>
-	</form>
+<div class="container">	
+	<div align="center">
+		<h1>board & boardFile 수정</h1>	
+	</div>
+	<br>
+	<div class="p2" align="center">
+		<form action="<%=request.getContextPath()%>/modifyBoardAction.jsp" method="post" enctype="multipart/form-data">
+			<input type="hidden" name="boardNo" value="<%=map.get("boardNo")%>">
+			<input type="hidden" name="boardFileNo" value="<%=map.get("boardFileNo")%>">
+			<table class="table table-bordered">
+				<tr>
+					<td >Title</td>
+					<td>
+						<textarea rows="3" cols="50" name="boardTitle" required="required">
+							<%=map.get("boardTitle") %>
+						</textarea>
+					</td>
+				</tr>
+				<tr>
+					<td>Board File</td>
+					<td>
+						<input type="file" name="boardFile">
+						<br>(수정 전 파일 : <%=map.get("originFilename")%>)
+					</td>
+				</tr>
+			</table>
+			<div align="center">
+				<button class="button" type="submit">수정</button>			
+			</div>
+		</form>
+	</div>
+</div>
 </body>
 </html>
