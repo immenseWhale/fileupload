@@ -59,6 +59,13 @@
 	System.out.println(type+ " <--mReq-- modifyBoardAction type");
 	System.out.println(saveFilename+ " <--mReq-- modifyBoardAction saveFilename");
 	System.out.println(originFilename+ " <--mReq-- modifyBoardAction originFilename");
+	
+	//title은 파일첨부 안 해도 무조건 수정
+	String boardSql = "UPDATE board SET board_title = ? WHERE board_no = ?";
+	PreparedStatement boardStmt = conn.prepareStatement(boardSql);
+	boardStmt.setString(1, boardTitle);
+	boardStmt.setInt(2, boardNo);
+	int boardRow = boardStmt.executeUpdate();
 
 	//파일이 안 넘어오면 null이다 --> null이면 board 테이블의 title만 수정
 	if(mRequest.getOriginalFileName("boardFile") != null ){
@@ -82,12 +89,14 @@
 
 			//vo타입에 담기
 			BoardFile boardFile = new BoardFile();
-			boardFile.setBoardNo(boardFileNo);
+			boardFile.setBoardFileNo(boardFileNo);
+			boardFile.setBoardNo(boardNo);
 			boardFile.setType(type);
 			boardFile.setOriginFilename(originFilename);
 			boardFile.setSaveFilename(saveFilename);
 			
 			System.out.println(YELLOW + boardFile.getBoardFileNo()+"<--vo--modifyBoardAction boardFileNo"+RESET);
+			System.out.println(YELLOW + boardFile.getBoardNo()+"<--vo--modifyBoardAction boardFileNo"+RESET);
 			System.out.println(YELLOW + boardFile.getType()+"<--vo--modifyBoardAction type"+RESET);
 			System.out.println(YELLOW + boardFile.getOriginFilename()+"<--vo--modifyBoardAction originFilename"+RESET);
 			System.out.println(YELLOW + boardFile.getSaveFilename()+"<--vo--modifyBoardAction saveFilename"+RESET);
