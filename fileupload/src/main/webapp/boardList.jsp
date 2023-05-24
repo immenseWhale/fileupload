@@ -207,7 +207,7 @@
 						<input type="password" name="memberPw">
 					</td>
 					<td>
-						<button type="submit">login</button>
+						<button  class = "button" type="submit">login</button>
 					</td>
 				</tr>
 			</table>              
@@ -292,34 +292,50 @@
 		</table>
 	</div>
 <!---------------------------페이징  -->
-
-	<div class="pagination">
-	<% 	//페이지가 1 이상이면 이전 페이지 보여주기
-		if (startPage > 1) {
-	%>
-			<a href="<%=request.getContextPath()%>/boardList.jsp?currentPage=<%=1%>">1</a>
-			<span>...</span>
-	<%
-	     } 
-	     
-		for (int i = startPage; i <= endPage; i+=1) { 
-			if (i == currentPage) {
-	%>
-				<span  class="active"><%=i%></span>
-	<%
-			} else {
-	%>
-				<a href="<%=request.getContextPath()%>/boardList.jsp?currentPage=<%=i%>"><%=i%></a>
-	<% 
-			} 
-		} 	
-		if (endPage < lastPage) {
-	%>
-			<span>...</span>
-			<a href="<%=request.getContextPath()%>/boardList.jsp?currentPage=<%=lastPage%>"><%=lastPage%></a>
-	<% 
-		}
-	%>
+	<div class="d-flex justify-content-center">
+		<nav aria-label="Page navigation">
+			<ul class="pagination">
+			<%
+				if (startPage > 1) {
+			%>
+					<li class="page-item">
+						<a class="page-link" href="<%=request.getContextPath()%>/boardList.jsp?currentPage=1">1</a>
+					</li>
+					<li class="page-item disabled">
+						<span class="page-link">...</span>
+					</li>
+			<%
+				}
+			
+				for (int i = startPage; i <= endPage; i++) {
+					if (i == currentPage) { 
+			%>
+					<li class="page-item active">
+						<span class="page-link"><%= i %></span>
+					</li>
+			<%
+					} else { 
+			%>
+						<li class="page-item">
+							<a class="page-link" href="<%=request.getContextPath()%>/boardList.jsp?currentPage=<%=i%>"><%=i%></a>
+						</li>	
+			<%
+					}
+				}
+				
+				if (endPage < lastPage) {
+			%>
+					<li class="page-item disabled">
+						<span class="page-link">...</span>
+						</li>
+					<li class="page-item">
+						<a class="page-link" href="<%=request.getContextPath()%>/boardList.jsp?currentPage=<%=lastPage%>"><%=lastPage%></a>
+					</li>
+			<%
+				}
+			%>
+			</ul>
+		</nav>
 	</div>
 </div>
 </body>
