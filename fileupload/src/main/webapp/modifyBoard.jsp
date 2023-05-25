@@ -122,7 +122,7 @@
 </head>
 <body>
 <div class="container">	
-	<div align="center">
+	<div style="background-color:#FFD8D8">
 		<h1>board & boardFile 수정</h1>	
 	</div>
 	<br>

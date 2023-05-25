@@ -46,38 +46,64 @@
 	h2 {/* h2 왼쪽정렬 */
 		text-align: left;
 	}
+	.button {/* 버튼 스타일 */
+	  background-color: #FFD8D8; /* Green */
+	  border: none;
+	  color: black;
+	  padding: 15px 32px;
+	  text-align: center;
+	  text-decoration: none;
+	  display: inline-block;
+	  font-size: 16px;
+	}
+	.button:hover {background-color: #FFB1BC}
+	.button:active {
+	  background-color: #FFB1BC;
+	  text-align: center;
+	  box-shadow: 0 5px #666;
+	  transform: translateY(4px);
+	}
 </style>
 </head>
 <body>
-	<h1>PDF 자료 업로드</h1>
-	<!-- enctype = multipart/form-data & post방식 -->
-	<form action="<%=request.getContextPath()%>/addBoardAction.jsp" method="post" enctype="multipart/form-data">
-		<table class="table table-bordered ">
-	<!---------------------  자료 업로드 제목 -->
-			<tr>
-				<th>Board Title</th>
-				<td><!-- required : 폼 공백일 시 submit(X) -->
-					<textarea rows="3" cols="50" name="boardTitle" required="required"></textarea>
-				</td>
-			</tr>
-			
-	<!---------------------  로그인 사용자 아이디 -->
-			<tr>
-				<th>Member ID</th>
-				<td>
-					<input type="text" name="memberId" value="<%=loginMemberId%>" readonly="readonly">
-				</td>
-			</tr>
-			
-	<!--------------------- 파일 업로드 -->
-			<tr>
-				<th>Board File</th><!-- vo -->
-				<td>
-					<input type="file" name="boardFile" required="required">
-				</td>
-			</tr>
-		</table>
-		<button type="submit">자료업로드</button>
-	</form>
+<div class="container">	
+	<div style="background-color:#FFD8D8">	
+		<h1>PDF 자료 업로드</h1>
+	</div>
+	<br>
+	<div class="p2">
+		<!-- enctype = multipart/form-data & post방식 -->
+		<form action="<%=request.getContextPath()%>/addBoardAction.jsp" method="post" enctype="multipart/form-data">
+			<table class="table table-bordered ">
+		<!---------------------  자료 업로드 제목 -->
+				<tr>
+					<th>Board Title</th>
+					<td><!-- required : 폼 공백일 시 submit(X) -->
+						<textarea rows="3" cols="50" name="boardTitle" required="required"></textarea>
+					</td>
+				</tr>
+				
+		<!---------------------  로그인 사용자 아이디 -->
+				<tr>
+					<th>Member ID</th>
+					<td>
+						<input type="text" name="memberId" value="<%=loginMemberId%>" readonly="readonly">
+					</td>
+				</tr>
+				
+		<!--------------------- 파일 업로드 -->
+				<tr>
+					<th>Board File</th><!-- vo -->
+					<td>
+						<input type="file" name="boardFile" required="required">
+					</td>
+				</tr>
+			</table>
+			<div align="center">
+				<button class="button" type="submit">자료 업로드</button>			
+			</div>
+		</form>
+	</div>
+</div>
 </body>
 </html>
